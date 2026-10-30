@@ -1,6 +1,6 @@
 imageOwner: "sivanathan111"
 # Initial deployment uses latest; use a commit SHA for later upgrades.
-imageTag: "latest"
+imageTag: "21a19d27a4fd3172214159edfce40df466d83ade"
 
 services:
   - users
