@@ -1,0 +1,14 @@
+{{- range .Values.services }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $.Release.Name }}-{{ . }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ $.Release.Name }}-{{ . }}
+  ports:
+    - port: 8000
+      targetPort: 8000
+{{- end }}

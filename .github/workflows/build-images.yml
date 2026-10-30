@@ -1,0 +1,57 @@
+name: Build and publish images
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [users, products, orders, payments, notifications]
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+
+      - name: Build image
+        env:
+          SERVICE: ${{ matrix.service }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          IMAGE="ghcr.io/sivanathan111/${SERVICE}-service"
+          docker build --label "org.opencontainers.image.source=https://github.com/sivanathan111/finproject" -t "${IMAGE}:${COMMIT}" "./${SERVICE}-service"
+
+      - name: Check container health
+        env:
+          SERVICE: ${{ matrix.service }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          docker run -d --name smoke -p 127.0.0.1:8000:8000 "ghcr.io/sivanathan111/${SERVICE}-service:${COMMIT}"
+          curl --fail --retry 10 --retry-connrefused --retry-delay 1 http://127.0.0.1:8000/health
+
+      - name: Log in to GHCR
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+        run: echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+
+      - name: Publish image
+        env:
+          SERVICE: ${{ matrix.service }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          IMAGE="ghcr.io/sivanathan111/${SERVICE}-service"
+          docker push "${IMAGE}:${COMMIT}"
+          docker tag "${IMAGE}:${COMMIT}" "${IMAGE}:latest"
+          docker push "${IMAGE}:latest"
+
+      - name: Clean up test container
+        if: always()
+        run: docker rm -f smoke || true

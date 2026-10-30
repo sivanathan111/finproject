@@ -1,0 +1,27 @@
+{{- $owner := required "Set imageOwner to your lowercase GitHub username or organization" .Values.imageOwner }}
+{{- range .Values.services }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $.Release.Name }}-{{ . }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $.Release.Name }}-{{ . }}
+  template:
+    metadata:
+      labels:
+        app: {{ $.Release.Name }}-{{ . }}
+    spec:
+      containers:
+        - name: {{ . }}
+          image: {{ printf "ghcr.io/%s/%s-service:%s" $owner . $.Values.imageTag | quote }}
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+{{- end }}

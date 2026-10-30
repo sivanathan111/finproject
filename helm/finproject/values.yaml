@@ -1,0 +1,10 @@
+imageOwner: "sivanathan111"
+# Initial deployment uses latest; use a commit SHA for later upgrades.
+imageTag: "latest"
+
+services:
+  - users
+  - products
+  - orders
+  - payments
+  - notifications

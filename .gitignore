@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.venv/
+
+# Terraform working files, state, and saved plans
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+!terraform.tfvars.example
+# Commit .terraform.lock.hcl so provider versions stay reproducible.
