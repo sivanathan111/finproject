@@ -56,8 +56,12 @@ helm upgrade --install finproject ./helm/finproject --namespace finproject --cre
 
 Replace `FULL_COMMIT_SHA` with the actual SHA. Updating the tag changes the pod
 template and triggers a rollout. Re-pushing `latest` alone does not restart
-existing pods. The workflow currently builds images only; it does not deploy
-to AWS or update GitOps configuration. Argo CD will handle deployment later.
+existing pods. After all five builds succeed, the workflow commits the built
+commit SHA to `imageTag` in this values file. The configured Argo CD Application
+watches `helm/finproject` on `main` and automatically syncs that change to EKS.
+Chart-only changes do not trigger image builds because the workflow filters paths.
+Once Argo CD owns the application, use Git changes for upgrades rather than
+running manual Helm upgrades against the same resources.
 
 ## Test locally through the Kubernetes connection
 

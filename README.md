@@ -58,4 +58,6 @@ Each Docker build uses its own service directory as the build context.
 The first Terraform lesson is in [terraform/README.md](terraform/README.md).
 The Kubernetes application chart and deployment steps are in [helm/README.md](helm/README.md).
 The [GitHub Actions workflow](.github/workflows/build-images.yml) builds, checks,
-and publishes all five images to GHCR on pushes to `main`. It does not deploy to EKS yet.
+and publishes all five images to GHCR for application or workflow changes on `main`.
+After successful builds it commits the image SHA to Helm values; the configured
+Argo CD Application deploys that Git change to EKS.
